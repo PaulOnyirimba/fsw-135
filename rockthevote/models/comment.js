@@ -14,6 +14,11 @@ const commentSchema = new Schema({
         ref: "Issue",
         required: true
     },
+    // parent_comment: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "Comment",
+    //     required: false
+    // },
     comment_txt: {
         type: String,
         required: true
