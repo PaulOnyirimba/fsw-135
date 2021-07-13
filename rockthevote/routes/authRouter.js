@@ -1,6 +1,8 @@
 const express = require('express');
 const user = require('../models/user');
 const authRouter = express.Router();
+const User = require('../models/user.js')
+const jwt = require('jsonwebtoken')
 // const Authentication = require('../models/comment.js')
 
 
@@ -23,8 +25,8 @@ authRouter.post('signup', (req, res, next) => {
                 res.status(500)
                 return next(err)
             }
-            const token = jwt.sign(savedUser.toObject(), process.env.SECRET)
-      return res.status(201).send({ token, user: savedUser })
+            const token = jwt.sign(savedUser.withoutPassword(), process.env.SECRET)
+      return res.status(201).send({ token, user: savedUser.withoutPassword() })
         })
     })
 })
@@ -39,10 +41,20 @@ authRouter.post("/login", (req, res, next) => {
         res.status(403)
         return next(new Error('Invalid Credentials'))
       }
-      const token = jwt.sign(user.toObject(), process.env.SECRET)
-      return res.status(200).send({ token, user })
+      user.checkPassword(req.body.password, (err, isMatch) => {
+        if(err) {
+            res.status(403)
+            return next(new Error(failedLogin))
+        }
+        if(!isMatch) {
+            res.status(403)
+            return next (newError(failedLogin))
+        }
+      const token = jwt.sign(user.withoutPassword(), process.env.SECRET)
+      return res.status(200).send({ token, user: user.withoutPassword()})
     })
   })
+})
 
 
 

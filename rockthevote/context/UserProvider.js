@@ -30,6 +30,7 @@ export default function UserProvider(props) {
                 const { user, token } = res.data
                 localStorage.setItem('token', token)
                 localStorage.setItem('user', JSON.stringify(user))
+                getUserIssue()
                 setUserState(prevUserState => ({
                     ...prevUserState,
                     user,
@@ -44,6 +45,28 @@ export default function UserProvider(props) {
         localStorage.removeItem('user')
         setUserState({ user: {}, token: ""})
     }
+
+    function addIssue(newIssue) {
+        userAxios.post('/api/issue', newIssue)
+        .then(res => {
+            setUserState(prevState => ({
+                ...prevState,
+                todos: [...prevState.todos, res.data]
+            }))
+        })
+        .catch(err => console.log(err.response.data.errMsg))
+    }
+
+function getUserIssue() {
+    userAxios.get('/api/todo/user')
+    .then(res => {
+        setUserState(prevState => ({
+            ...prevState,
+            todos: res.data
+        }))
+    })
+    .catch(err => console.log(err.response.data.errMsg))
+}
 
     return (
         <UserContext.Provider value={ { ...userState, signup, login} }>
